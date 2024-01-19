@@ -81,7 +81,7 @@ def parse_log_file(log_file_path, subject_label, session, run, bids_dir):
                 # Create a dictionary with the header you want
                 row = {
                     'frame': i,
-                    'onset': int(onset_value)/ 1000.0,
+                    'onset': int(onset_value)/ 1000.0 if onset_value else None,
                     'duration': int(duration_value) / 1000.0 if duration_value else None,
                     'trial_type': trialtype_value,
                     'event_type': event_type,
