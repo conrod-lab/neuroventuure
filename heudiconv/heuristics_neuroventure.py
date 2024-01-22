@@ -45,7 +45,7 @@ def infotodict(seqinfo):
         # T1w
         #if protocol_name == 'T1 SAG MPRAGE grappa2' and s.dim1 == 256:
         
-        if 'T1' in protocol_name and s.dim4 == 1 and s.sequence_name in ["*tfl3d1_ns","*tfl3d1_16ns"]:
+        if 'T1' in protocol_name and s.dim4 == 1 and s.sequence_name in ["*tfl3d1_ns","*tfl3d1_16ns"] and not any(it in s.image_type for it in ["DERIVED", "PHYSIO"]):
             info[t1w].append(s.series_id)
 
         # rs-fMRI
