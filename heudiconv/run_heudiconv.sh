@@ -29,7 +29,7 @@ find $SLURM_TMPDIR -type d -name 'DICOM' -exec rsync -rv {} "${DCMDIR}/" \;
 
 echo Submitted directory: ${DCMDIR}
 
-IMG="${SCRATCH}/containers/heudiconv-latest-dev.sif"
+IMG="${HOME}/projects/def-patricia/containers/heudiconv-latest-dev.sif"
 
 HEURISTICDIR=$(dirname "${HEURISTICFILE}")
 
