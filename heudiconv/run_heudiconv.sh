@@ -8,6 +8,8 @@ OUTDIR=${1}
 DCMDIRS=("${@:2}")
 DCMDIR=${DCMDIRS[${SLURM_ARRAY_TASK_ID}]}
 #DCMDIR=${2}
+# "/home/spinney/projects/def-patricia/spinney/neuroimaging-preprocessing/src/data"
+HEURISTICFILE=${3}
 
 SUBJECT_NUMBER=${DCMDIR##*/sub-}
 SUBJECT_NUMBER=${SUBJECT_NUMBER%%/*}
@@ -28,7 +30,8 @@ find $SLURM_TMPDIR -type d -name 'DICOM' -exec rsync -rv {} "${DCMDIR}/" \;
 echo Submitted directory: ${DCMDIR}
 
 IMG="${SCRATCH}/containers/heudiconv-latest-dev.sif"
-HEURISTICDIR="/home/spinney/projects/def-patricia/spinney/neuroimaging-preprocessing/src/data"
+
+HEURISTICDIR=$(dirname "${HEURISTICFILE}")
 
 # additional params to dcm2niix, create the JSON file dynamically
 JSON_FILE="${HEURISTICDIR}/dcm2niix_config.json"
@@ -37,7 +40,7 @@ JSON_FILE="${HEURISTICDIR}/dcm2niix_config.json"
 #   "d": 9,
 # }' > "$JSON_FILE"
 
-CMD="singularity run -B ${DCMDIR}:/dicoms -B ${OUTDIR}:/output -B ${HEURISTICDIR}/heuristics_neuroventure.py:/heuristics_neuroventure.py:ro -B ${HEURISTICDIR}/dcm2niix_config.json:/dcm2niix_config.json:ro --no-home ${IMG} --files /dicoms/ -o /output -f /heuristics_neuroventure.py  -c dcm2niix  --overwrite --grouping all -b notop --minmeta -l . -s ${SUBJECT_NUMBER} -ss ${SESSION_NUMBER}}" # --dcmconfig /dcm2niix_config.json
+CMD="singularity run -B ${DCMDIR}:/dicoms -B ${OUTDIR}:/output -B ${HEURISTICFILE}:/heuristics_neuroventure.py:ro -B ${HEURISTICDIR}/dcm2niix_config.json:/dcm2niix_config.json:ro --no-home ${IMG} --files /dicoms/ -o /output -f /heuristics_neuroventure.py  -c dcm2niix  --overwrite --grouping all -b notop --minmeta -l . -s ${SUBJECT_NUMBER} -ss ${SESSION_NUMBER}}" # --dcmconfig /dcm2niix_config.json
 
 printf "Command:\n${CMD}\n"
 ${CMD}

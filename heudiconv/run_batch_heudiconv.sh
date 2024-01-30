@@ -2,23 +2,42 @@
 
 set -eu
 
+# Change this to where you git cloned the project neuroventure:
+PROJECT_HOME=/home/spinney/project/spinney
+# Change this to where you want your slurm outputs to go
+LOG_OUTPUT=$SCRATCH/neuroventure/raw/tmp/output
+
+# Output of conversion
+OUTPUT=$SCRATCH/neuroventure/raw/bids
+
+# This is what you change to grab a subject you want for a specific session
+subject_session_to_filter=("sub-020/ses-01" "sub-028/ses-01" "sub-029/ses-01" "sub-030/ses-01" "sub-033/ses-02" "sub-052/ses-03" "sub-069/ses-01" "sub-072/ses-01" "sub-073/ses-03" "sub-074/ses-02" "sub-079/ses-02" "sub-086/ses-01" "sub-090/ses-01" "sub-153/ses-01")
+# Specify heuristics file (if you are using dcm2niix_config, put it in the same directory)
+HEURISTICFILE="/home/spinney/projects/def-patricia/spinney/neuroimaging-preprocessing/src/data"
+
+HEUDICONV_FOLDER="$OUTPUT/.heudiconv"
+
+# Check if the .heudiconv folder exists
+if [ -d "$HEUDICONV_FOLDER" ]; then
+    echo "Removing .heudiconv folder from $OUTPUT"
+    rm -r "$HEUDICONV_FOLDER"
+else
+    echo "No .heudiconv folder found in $OUTPUT"
+fi
+
+
+## The rest of the code is static
+
 # where the DICOMs are located
-DCMROOT=/home/spinney/project/data/neuroventure/sourcedata/dicoms/
+DCMROOT=$HOME/projects/def-patricia/data/neuroventure/sourcedata/dicoms
 
 # single subject test
 #DCMROOT=/scratch/spinney/neuroventure/raw/dicoms_clean
 # where we want to output the data
-OUTPUT=/scratch/spinney/neuroventure/raw/bids
 
 # find all DICOM directories
 DCMDIRS=( $(find ${DCMROOT} -maxdepth 2 -type d -name "ses-*" ) )
 #filtered_paths=( $(find ${DCMROOT} -maxdepth 2 -type d -name "ses-*" ) )
-
-#subject_session_to_filter=("sub-018/ses-02" "sub-050/ses-03" "sub-059/ses-03" "sub-072/ses-01" "sub-073/ses-03" "sub-079/ses-01" "sub-086/ses-01" "sub-099/ses-02" "sub-120/ses-01" "sub-155/ses-02")
-
-subject_session_to_filter=("sub-130/ses-03" "sub-147/ses-03")
-
-#subject_session_to_filter=("sub-062/ses-01")
 
 # Array to store filtered paths
 filtered_paths=()
@@ -39,17 +58,11 @@ for path in "${filtered_paths[@]}"; do
   echo "$path"
 done
 
-# submit to another script as a job array on SLURM
-#sbatch --array=0-`expr ${#DCMDIRS[@]} - 1` /home/spinney/projects/def-patricia/spinney/neuroimaging-preprocessing/src/models/run_heudiconv.sh ${OUTPUT} ${DCMDIRS[@]}
-
-# sbatch --cpus-per-task=1 --mem=2GB --output=/scratch/spinney/neuroventure/raw/tmp/output/heudiconv_%A.out --error=/scratch/spinney/neuroventure/raw/tmp/error/heudiconv_%A.err \
-#   /home/spinney/projects/def-patricia/spinney/neuroimaging-preprocessing/src/models/run_heudiconv.sh ${OUTPUT} "${DCMDIRS[@]}"
-
 #More ressources
 sbatch --array=0-`expr ${#filtered_paths[@]} - 1`%100 \
        --cpus-per-task=1 \
        --mem=2GB \
-       --output=/home/spinney/scratch/neuroventure/raw/tmp/output/heudiconv/heudiconv_%A_%a.out \
-       --error=/home/spinney/scratch/neuroventure/raw/tmp/error/heudiconv/heudiconv_%A_%a.err \
-       /home/spinney/projects/def-patricia/spinney/neuroimaging-preprocessing/src/models/heudiconv/run_heudiconv.sh ${OUTPUT} ${filtered_paths[@]}
+       --output=${LOG_OUTPUT}/heudiconv/heudiconv_%A_%a.out \
+       --error=${LOG_OUTPUT}/heudiconv/heudiconv_%A_%a.err \
+       $PROJECT_HOME/neuroventure/heudiconv/run_heudiconv.sh ${OUTPUT} ${filtered_paths[@]} ${HEURISTICFILE}
 
