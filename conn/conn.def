@@ -1,0 +1,76 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%post
+    apt-get -qq update
+    DEBIAN_FRONTEND=noninteractive apt-get --yes --quiet --no-install-recommends install \
+      unzip \
+      xorg \
+      wget \
+      ca-certificates
+    
+    mkdir /opt/mcr /opt/mcr_install
+    MATLAB_VERSION=R2019b
+    MCR_VERSION=v97
+    MCR_UPDATE=9
+    wget https://ssd.mathworks.com/supportfiles/downloads/${MATLAB_VERSION}/Release/${MCR_UPDATE}/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_${MATLAB_VERSION}_Update_${MCR_UPDATE}_glnxa64.zip -O /opt/mcr_install/mcr.zip
+    unzip -q /opt/mcr_install/mcr.zip -d /opt/mcr_install
+    cat << EOF > /opt/mcr_install/installer_input.txt
+    mode silent
+    destinationFolder /opt/mcr
+    agreeToLicense yes
+    product.MATLAB_Runtime___Core true
+    product.MATLAB_Runtime___Numerics true
+EOF
+    /opt/mcr_install/install -inputFIle /opt/mcr_install/installer_input.txt
+    rm -rf /opt/mcr_install
+
+    mkdir /opt/spm12
+    SPM_REVISION=r7771
+    wget https://www.fil.ion.ucl.ac.uk/spm/download/restricted/utopia/spm12/spm12_${SPM_REVISION}_Linux_${MATLAB_VERSION}.zip -O /opt/spm12.zip
+    unzip -q /opt/spm12.zip -d /opt
+    rm -f /opt/spm12.zip
+    chmod +x /opt/spm12/run_spm12.sh /opt/spm12/spm12
+    ln -s /opt/spm12/spm12_mcr/spm/spm12/bin/spm12-mcr /usr/local/bin/spm12
+
+    # Download CONN toolbox and add it as an SPM toolbox
+    CONN_VERSION=22a
+    wget https://www.nitrc.org/frs/download.php/13733/conn${CONN_VERSION}_glnxa64.zip -O /opt/conn.zip
+
+    # Ensure the target directory is empty before extracting
+    mkdir -p /opt/conn
+    rm -rf /opt/conn/*
+
+    unzip -o /opt/conn.zip -d /opt
+    rm -f /opt/conn.zip
+    
+    # Remove existing /opt/spm12/toolbox/conn if it exists
+    rm -rf /opt/spm12/toolbox/conn
+
+    mv /opt/conn /opt/spm12/toolbox/conn
+
+    # Prepend conn directory to MATLAB path
+    echo "addpath('/opt/spm12/toolbox/conn');" >> /root/.matlab/startup.m
+
+    /opt/spm12/run_spm12.sh /opt/mcr/${MCR_VERSION} function exit
+
+    apt-get --yes remove unzip wget
+    apt-get --yes autoremove
+    apt-get --yes clean
+
+%environment
+    export SPM_HOME=/opt/spm12
+    export MCR_HOME=/opt/mcr/v97
+    export MCR_INHIBIT_CTF_LOCK=1
+    export SPM_HTML_BROWSER=0
+
+%runscript
+    /bin/bash
+
+%labels
+    Author fil.spm@ucl.ac.uk
+    Version v1.0
+
+%help
+    This is a container with SPM12 and MATLAB Runtime.
+
