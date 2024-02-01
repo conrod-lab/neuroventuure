@@ -26,13 +26,9 @@ singularity run --cleanenv \
   -B $OUTPUT:/out \
   -B $BIDSROOT:/data \
   ${CONTAINER_DIR}/freesurfer.sif \
-  /data /out/derivatives/freesurfer \
-  participant \
-  --participant-label $SUBJECT_NUM --nthreads 8 \
-  --omp-nthreads 8 \
-  -w /work \
-  -vvv \
-  --fs-license-file $FS_LICENSE
-  --debug all
+  recon-all \
+  -i /data/sub-${SUBJECT_NUM}/ses-01/anat/sub-${SUBJECT_NUM}_ses-01_run-01_T1w.nii.gz \
+  -subjid $SUBJECT_NUM \
+  -all -sd /out
 
 log "Run complete."
