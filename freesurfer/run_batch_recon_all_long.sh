@@ -8,7 +8,6 @@ LOGDIR="${SCRATCH}/freesurfer-logs"
 mkdir -p "${FREESURFER_DATA}"
 mkdir -p "${LOGDIR}"
 
-
 # Copy data from root to FreeSurfer directory
 rsync -rv "${BIDSROOT}"/* "${FREESURFER_DATA}/"
 
