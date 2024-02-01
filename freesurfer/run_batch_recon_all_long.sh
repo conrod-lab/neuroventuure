@@ -6,6 +6,8 @@ BIDSROOT=/home/spinney/project/data/neuroventure/bids
 OUTPUT=/scratch/spinney/neuroventure/derivatives/freesurfer
 FREESURFER_DATA=/scratch/spinney/neuroventure/derivatives/freesurfer/sourcedata
 
+mkdir -p $FREESURFER_DATA
+
 # copy data from root to freesurfer directory
 rsync -rv $BIDSROOT/* $FREESURFER_DATA/
 
