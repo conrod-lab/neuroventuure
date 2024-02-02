@@ -11,9 +11,9 @@ LOG_OUTPUT=$SCRATCH/neuroventure/raw/tmp/output
 OUTPUT=$SCRATCH/neuroventure/raw/bids
 
 # This is what you change to grab a subject you want for a specific session
-subject_session_to_filter=("sub-020/ses-01" "sub-028/ses-01" "sub-029/ses-01" "sub-030/ses-01" "sub-033/ses-02" "sub-052/ses-03" "sub-069/ses-01" "sub-072/ses-01" "sub-073/ses-03" "sub-074/ses-02" "sub-079/ses-02" "sub-086/ses-01" "sub-090/ses-01" "sub-153/ses-01")
+#subject_session_to_filter=("sub-020/ses-01" "sub-028/ses-01" "sub-029/ses-01" "sub-030/ses-01" "sub-033/ses-02" "sub-052/ses-03" "sub-069/ses-01" "sub-072/ses-01" "sub-073/ses-03" "sub-074/ses-02" "sub-079/ses-02" "sub-086/ses-01" "sub-090/ses-01" "sub-153/ses-01")
 # Specify heuristics file (if you are using dcm2niix_config, put it in the same directory)
-HEURISTICFILE="/home/spinney/projects/def-patricia/spinney/neuroimaging-preprocessing/src/data"
+HEURISTICFILE="/home/spinney/project/spinney/neuroventure/heudiconv/heuristics_neuroventure.py"
 
 HEUDICONV_FOLDER="$OUTPUT/.heudiconv"
 
@@ -36,22 +36,22 @@ DCMROOT=$HOME/projects/def-patricia/data/neuroventure/sourcedata/dicoms
 # where we want to output the data
 
 # find all DICOM directories
-DCMDIRS=( $(find ${DCMROOT} -maxdepth 2 -type d -name "ses-*" ) )
-#filtered_paths=( $(find ${DCMROOT} -maxdepth 2 -type d -name "ses-*" ) )
+#DCMDIRS=( $(find ${DCMROOT} -maxdepth 2 -type d -name "ses-*" ) )
+filtered_paths=( $(find ${DCMROOT} -maxdepth 2 -type d -name "ses-*" ) )
 
 # Array to store filtered paths
-filtered_paths=()
+#filtered_paths=()
 
 # Loop through the array of paths
-for path in "${DCMDIRS[@]}"; do
-  # Extract the subject_session from the path
-  subject_session=$(echo "$path" | grep -oP 'sub-\d+/ses-\d+')
+# for path in "${DCMDIRS[@]}"; do
+#   # Extract the subject_session from the path
+#   subject_session=$(echo "$path" | grep -oP 'sub-\d+/ses-\d+')
 
-  # Check if the subject_session is in the list to be filtered
-  if [[ " ${subject_session_to_filter[@]} " =~ " ${subject_session} " ]]; then
-    filtered_paths+=("$path")
-  fi
-done
+#   # Check if the subject_session is in the list to be filtered
+#   if [[ " ${subject_session_to_filter[@]} " =~ " ${subject_session} " ]]; then
+#     filtered_paths+=("$path")
+#   fi
+# done
 
 # Print the filtered paths
 for path in "${filtered_paths[@]}"; do

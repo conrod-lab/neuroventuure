@@ -20,8 +20,10 @@ def infotodict(seqinfo):
     func_rest = create_key('sub-{subject}/{session}/func/sub-{subject}_{session}_task-rest_run-{item:02d}_bold')
     func_task_STOP = create_key('sub-{subject}/{session}/func/sub-{subject}_{session}_task-stop_run-{item:02d}_bold')
     func_task_MIDT = create_key('sub-{subject}/{session}/func/sub-{subject}_{session}_task-midt_run-{item:02d}_bold')
-    dwi = create_key('sub-{subject}/{session}/dwi/sub-{subject}_{session}_run-{item:02d}_dwi')
-    
+    # dwi = create_key('sub-{subject}/{session}/dwi/sub-{subject}_{session}_run-{item:02d}_dwi')
+    fmap_mag =  create_key('sub-{subject}/{session}/fmap/sub-{subject}_{session}_magnitude')
+    fmap_phase = create_key('sub-{subject}/{session}/fmap/sub-{subject}_{session}_phasediff')
+    dwi = create_key('sub-{subject}/{session}/dwi/sub-{subject}_{session}_run-{item:02d}_dwi')    
     #dwi22 = create_key('sub-{subject}/{session}/dwi/sub-{subject}_{session}_run-{item:02d}_acq-22d_dwi')
     #dwi23 = create_key('sub-{subject}/{session}/dwi/sub-{subject}_{session}_run-{item:02d}_acq-23d_dwi')
     #dwi24 = create_key('sub-{subject}/{session}/dwi/sub-{subject}_{session}_run-{item:02d}_acq-24d_dwi')
@@ -31,7 +33,7 @@ def infotodict(seqinfo):
     
 
     #info = {t1w: [], func_rest: [], func_task_STOP: [], func_task_MIDT: [], dwi22: [], dwi23: [], dwi24: []}
-    info = {t1w: [], func_rest: [], func_task_STOP: [], func_task_MIDT: [], dwi: []}
+    info = {t1w: [], func_rest: [], func_task_STOP: [], func_task_MIDT: [], fmap_mag:[], fmap_phase:[], dwi: []}
 
     for s in seqinfo:
         protocol_name = s.protocol_name.strip()
@@ -60,17 +62,11 @@ def infotodict(seqinfo):
         if 'MIDT' in protocol_name and s.dim1 == 64:
         #if protocol_name == 'BOLD MOSAIC 64_MIDT'and s.dim1 == 64:
             info[func_task_MIDT].append(s.series_id)
-
-        # DWI
-        # if 'DTI' in protocol_name and '22dir' in protocol_name and s.dim3 == 70:
-        # #if protocol_name == 'DTI AX EP2D grappa2 2mm 22dir 1000' and s.dim3 == 70:
-        #     info[dwi22].append(s.series_id)
-        # if 'DTI' in protocol_name and '23dir' in protocol_name and s.dim3 == 70:
-        # #if protocol_name == 'DTI AX EP2D grappa2 2mm 23dir 1000' and s.dim3 == 70:
-        #     info[dwi23].append(s.series_id)
-        # if 'DTI' in protocol_name and '24dir' in protocol_name and s.dim3 == 70:            
-        # #if protocol_name == 'DTI AX EP2D grappa2 2mm 24dir 1000' and s.dim3 == 70:
-        #     info[dwi24].append(s.series_id) 
+        # fmap
+        if  ('fm2d2r' in s.sequence_name) and any(it in s.image_type for it in [ "M"]):
+            info[fmap_mag].append(s.series_id)
+        if  ('fm2d2r' in s.sequence_name) and any(it in s.image_type for it in [ "P"]):
+            info[fmap_phase].append(s.series_id)   
 
         if (("ep_b" in s.sequence_name) or ("ez_b" in s.sequence_name) or ("epse2d1_110" in s.sequence_name)) and not any(it in s.image_type for it in ["DERIVED", "PHYSIO"]):
             info[dwi].append(s.series_id)
