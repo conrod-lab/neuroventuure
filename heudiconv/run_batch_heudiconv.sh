@@ -64,5 +64,5 @@ sbatch --array=0-`expr ${#filtered_paths[@]} - 1`%100 \
        --mem=2GB \
        --output=${LOG_OUTPUT}/heudiconv/heudiconv_%A_%a.out \
        --error=${LOG_OUTPUT}/heudiconv/heudiconv_%A_%a.err \
-       $PROJECT_HOME/neuroventure/heudiconv/run_heudiconv.sh ${OUTPUT} ${filtered_paths[@]} ${HEURISTICFILE}
+       $PROJECT_HOME/neuroventure/heudiconv/run_heudiconv.sh ${OUTPUT} ${HEURISTICFILE} ${filtered_paths[@]} 
 

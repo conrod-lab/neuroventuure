@@ -5,11 +5,11 @@ module load StdEnv/2020 apptainer/1.1.8
 
 OUTDIR=${1}
 # receive all directories, and index them per job array
-DCMDIRS=("${@:2}")
+HEURISTICFILE=${2}
+DCMDIRS=("${@:3}")
 DCMDIR=${DCMDIRS[${SLURM_ARRAY_TASK_ID}]}
 #DCMDIR=${2}
 # "/home/spinney/projects/def-patricia/spinney/neuroimaging-preprocessing/src/data"
-HEURISTICFILE=${3}
 
 SUBJECT_NUMBER=${DCMDIR##*/sub-}
 SUBJECT_NUMBER=${SUBJECT_NUMBER%%/*}
