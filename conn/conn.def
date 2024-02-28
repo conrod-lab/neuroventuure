@@ -43,11 +43,11 @@ EOF
     
     # Remove existing /opt/spm12/toolbox/conn if it exists
     rm -rf /opt/spm12/toolbox/conn
-
+    mkdir -p /opt/spm12/toolbox/conn
     mv /opt/conn /opt/spm12/toolbox/conn
 
     # Prepend conn directory to MATLAB path
-    echo "addpath('/opt/spm12/toolbox/conn');" >> /root/.matlab/startup.m
+    #echo "addpath('/opt/spm12/toolbox/conn');" >> /root/.matlab/startup.m
 
     /opt/spm12/run_spm12.sh /opt/mcr/${MCR_VERSION} function exit
 

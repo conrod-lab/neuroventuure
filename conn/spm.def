@@ -46,7 +46,8 @@ EOF
     export SPM_HTML_BROWSER=0
 
 %runscript
-    spm12 "$@"
+    #spm12 "$@"
+    /bin/bash
 
 %labels
     Author fil.spm@ucl.ac.uk

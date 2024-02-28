@@ -8,7 +8,8 @@ PROJECT_HOME=/home/spinney/project/spinney
 LOG_OUTPUT=$SCRATCH/neuroventure/raw/tmp/output
 
 # Output of conversion
-OUTPUT=$SCRATCH/neuroventure/raw/bids
+#OUTPUT=$SCRATCH/neuroventure/raw/bids
+OUTPUT=$HOME/projects/def-patricia/data/neuroventure/bids_new
 
 # This is what you change to grab a subject you want for a specific session
 #subject_session_to_filter=("sub-020/ses-01" "sub-028/ses-01" "sub-029/ses-01" "sub-030/ses-01" "sub-033/ses-02" "sub-052/ses-03" "sub-069/ses-01" "sub-072/ses-01" "sub-073/ses-03" "sub-074/ses-02" "sub-079/ses-02" "sub-086/ses-01" "sub-090/ses-01" "sub-153/ses-01")

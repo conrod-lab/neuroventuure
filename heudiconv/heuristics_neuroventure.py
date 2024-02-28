@@ -51,12 +51,12 @@ def infotodict(seqinfo):
             info[t1w].append(s.series_id)
 
         # rs-fMRI
-        if 'REST' in protocol_name and s.dim1 == 64:
+        if 'REST' in protocol_name and s.dim1 == 64 and not any(it in s.image_type for it in ["DERIVED", "PHYSIO"]):
         #if (protocol_name == 'Axial BOLD 3.5mm ISO_RESTING' or protocol_name == 'BOLD MOSAIC 64_REST')and s.dim1 == 64:
             info[func_rest].append(s.series_id)
 
         # task-fMRI
-        if 'STOP' in protocol_name and s.dim1 == 64:
+        if 'STOP' in protocol_name and s.dim1 == 64 and not any(it in s.image_type for it in ["DERIVED", "PHYSIO"]):
         #if protocol_name == 'BOLD MOSAIC 64_STOP' and s.dim1 == 64:
             info[func_task_STOP].append(s.series_id)
         if 'MIDT' in protocol_name and s.dim1 == 64:
