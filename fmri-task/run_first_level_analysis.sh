@@ -10,7 +10,7 @@ log() {
 # write function that takes in subject name, session name, task name, and a detailed error message
 # into columns of a csv log file called extract_task_contrasts_detailed.log
 log_detailed() {
-    echo "$1,$2,$3,$4" >> $LOG_OUTPUT/extract_task_contrasts_detailed.log
+    echo "$1,$2,$3,$4" >> $LOG_OUTPUT/first-level_task-${TASK}.log
 }
 
 PROJECT_HOME=${1}
@@ -18,9 +18,10 @@ OUTDIR=${2}
 LOG_OUTPUT=${3}
 FMRIPREPDIR=${4}
 TASK=${5}
+ANATSPACE=${6}
 # receive all directories, and index them per job array
 
-BIDSDIRS=("${@:6}")
+BIDSDIRS=("${@:7}")
 BIDSDIR=${BIDSDIRS[${SLURM_ARRAY_TASK_ID}]}
 BIDSROOT=$(dirname "$(dirname "$BIDSDIR")")
 
@@ -34,20 +35,17 @@ SESSION_NUMBER=${SESSION_NUMBER%%/*}
 echo "Session Number: $SESSION_NUMBER"
 echo "Task: $TASK"
 
-SUBJECT_OUTPUT_DIR=${OUTDIR}/sub-${SUBJECT_NUMBER}/ses-${SESSION_NUMBER}/${TASK}
-# create derivatives output folder
-mkdir -p $SUBJECT_OUTPUT_DIR
-
 # Find the task nii.gz file in the subject's session directory
-FMRI_FILE=$(find ${BIDSDIR} -name "*${TASK}*.nii.gz")
+# sub-001_ses-01_task-stop_run-01_space-MNI152NLin2009cAsym_desc-preproc_bold.json
+FMRI_FILE=$(find ${FMRIPREPDIR} -name "*${TASK}*${ANATSPACE}*preproc_bold.nii.gz")
 
 # Check that the task file exists or log 
 if [ -z "$FMRI_FILE" ]; then
-    echo "No fmri file found for subject ${SUBJECT_NUMBER} session ${SESSION_NUMBER} task ${TASK} in ${BIDSDIR}"
+    echo "No fmri file found for subject ${SUBJECT_NUMBER} session ${SESSION_NUMBER} task ${TASK} in ${FMRIPREPDIR}"
     # log to $LOG_OUTPUT/extract_task_contrasts.log
-    log "No fmri file found for subject ${SUBJECT_NUMBER} session ${SESSION_NUMBER} task ${TASK} in ${BIDSDIR}" >> $LOG_OUTPUT/extract_task_contrasts.log
+    log "No fmri file found for subject ${SUBJECT_NUMBER} session ${SESSION_NUMBER} task ${TASK} in ${FMRIPREPDIR}" >> $LOG_OUTPUT/extract_task_contrasts.log
     # log detailed
-    log_detailed $SUBJECT_NUMBER $SESSION_NUMBER $TASK "No fmri file found for ${TASK} in ${BIDSDIR}"
+    log_detailed $SUBJECT_NUMBER $SESSION_NUMBER $TASK "No fmri file found for ${TASK} in ${FMRIPREPDIR}"
     exit 1
 fi
 
@@ -104,6 +102,10 @@ combined_row="$participant_row $session_row"
 # Write the combined row to the second level confounds CSV file
 echo "$combined_row" >> "$OUTDIR/second_level_confounds.csv"
 
+# Following BIDS derivatives naming: <source_entities>[_keyword-<value>]_<suffix>.<extension
+SUBJECT_OUTPUT_DIR=${OUTDIR}/sub-${SUBJECT_NUMBER}/ses-${SESSION_NUMBER}
+# create derivatives output folder
+mkdir -p $SUBJECT_OUTPUT_DIR
 
 # Run the python script to extract the task contrasts
 python $PROJECT_HOME/neuroventure/fmri-contrasts/estimate_first_level.py $FMRI_FILE $EVENT_FILE $TASK $EVENT_FILE $MOTIONS_FILE $SUBJECT_OUTPUT_DIR

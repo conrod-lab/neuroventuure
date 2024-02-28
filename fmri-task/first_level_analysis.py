@@ -7,10 +7,11 @@ import numpy as np
 def read_tsv_file(file_path):
     # these are the types of the different trials
     df = pd.read_csv(file_path, sep='\t')
-    conditions = df[['condition']].tolist() #["c0", "c0", "c0", "c1", "c1", "c1", "c3", "c3", "c3"]
-    duration =  df[['duration']].tolist()  #[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    #TODO: condition or trial_type
+    conditions = df['trial_type'].values.tolist() #["c0", "c0", "c0", "c1", "c1", "c1", "c3", "c3", "c3"]
+    duration =  df['duration'].values.tolist()  #[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
     # these are the corresponding onset times
-    onsets =  df[['onsets']].tolist() #[30.0, 70.0, 100.0, 10.0, 30.0, 90.0, 30.0, 40.0, 60.0]
+    onsets =  df['onset'].values.tolist() #[30.0, 70.0, 100.0, 10.0, 30.0, 90.0, 30.0, 40.0, 60.0]
     return conditions, duration, onsets
 
 
@@ -20,10 +21,10 @@ def read_motion_file(file_path):
     return motion, add_reg_names
 
 
-def create_first_level_design_matrix(event_file,task,motions_file,outdir,frame_times):
+def create_first_level_design_matrix(event_file,confounds,frame_times):
      
     conditions, duration, onsets = read_tsv_file(event_file)
-    motion, add_reg_names = read_motion_file(motions_file)
+    #motion, add_reg_names = read_motion_file(motions_file)
     
     # Create a design matrix with the hrf model
     events = pd.DataFrame(
@@ -37,8 +38,8 @@ def create_first_level_design_matrix(event_file,task,motions_file,outdir,frame_t
         events,
         drift_model="polynomial",
         drift_order=3,
-        add_regs=motion,
-        add_reg_names=add_reg_names,
+        add_regs=confounds,
+        #add_reg_names=add_reg_names,
         hrf_model=hrf_model,
     )
         
@@ -53,11 +54,11 @@ def estimate_first_level_glm(fmri_img, design_matrix):
 def get_stop_contrasts(basic_contrasts):
     
     contrasts = {
-    "faces-scrambled": basic_contrasts["faces"] - basic_contrasts["scrambled"],
-    "scrambled-faces": -basic_contrasts["faces"]
-    + basic_contrasts["scrambled"],
+    "stop-go": basic_contrasts["stop"] - basic_contrasts["go"],
+    "go-stop": -basic_contrasts["go"]
+    + basic_contrasts["stop"],
     "effects_of_interest": np.vstack(
-        (basic_contrasts["faces"], basic_contrasts["scrambled"])
+        (basic_contrasts["stop"], basic_contrasts["go"])
     ),
     }
     return contrasts

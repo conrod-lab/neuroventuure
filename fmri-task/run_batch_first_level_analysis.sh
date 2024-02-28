@@ -11,6 +11,7 @@ OUTPUT=$SCRATCH/neuroventure/derivatives/fmri-task
 BIDSROOT=$HOME/projects/def-patricia/data/neuroventure/bids
 FMRIPREPDIR=$HOME/projects/def-patricia/data/neuroventure/derivatives/fmriprep
 TASK="stop"
+ANATSPACE="MNI152NLin2009cAsym"
 
 # Change this to where you want your slurm outputs to go
 LOG_OUTPUT=$SCRATCH/batch_extract_constrasts/$TASK
@@ -39,13 +40,9 @@ if [ -z "$PARTICIPANTS_FILE" ]; then
     exit 1
 fi
 
-touch $LOG_OUTPUT/extract_task_contrasts.log
+touch $LOG_OUTPUT/first-level_space-${ANATSPACE}_task-${TASK}.log
 # create another csv log file with columns for subject, session, task, and error message
-echo "subject,session,task,error" > $LOG_OUTPUT/extract_task_contrasts_detailed.log
-
-# Create a second level confounds csv file
-#TODO: add any other columns
-echo "subject,age,sex" > $OUTPUT/second_level_confounds.csv
+echo "subject,session,task,error" > $LOG_OUTPUT/first-level_space-${ANATSPACE}_task-${TASK}.log
 
 # Add an if statement here to check if use_filter_paths is set to true
 if [ "$use_filter_paths" = true ]; then
@@ -84,5 +81,5 @@ sbatch --array=0-`expr ${#filtered_paths[@]} - 1`%100 \
         --mem=2GB \
         --output=${LOG_OUTPUT}/slurm/extract_task_contrast_%A_%a.out \
         --error=${LOG_OUTPUT}/slurm/extract_task_contrast_%A_%a.err \
-        $PROJECT_HOME/neuroventure/fmri-contrasts/run_first_level_analysis.sh ${PROJECT_HOME} ${OUTPUT} ${LOG_OUTPUT} ${FMRIPREPDIR} ${TASK} ${filtered_paths[@]}
+        $PROJECT_HOME/neuroventure/fmri-contrasts/run_first_level_analysis.sh ${PROJECT_HOME} ${OUTPUT} ${LOG_OUTPUT} ${FMRIPREPDIR} ${TASK} ${ANATSPACE} ${filtered_paths[@]}
 

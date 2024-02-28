@@ -27,7 +27,7 @@ def process_subjects(subject_sessions, dry_run):
             if midt_fMRI_files:
                 subject_match = midt_fMRI_pattern.match(midt_fMRI_files[0])
                 subject_label = subject_match.group(2).zfill(3)
-                run_number = "01"#subject_match.group(3).zfill(2)
+                run_number = subject_match.group(3).zfill(2)
 
                 subject_number = os.path.basename(subject_folder)[-3:]
 
