@@ -4,21 +4,27 @@ set -eu
 
 # Change this to where you git cloned the project neuroventure:
 PROJECT_HOME=/home/spinney/project/spinney
-# Change this to where you want your slurm outputs to go
-LOG_OUTPUT=$SCRATCH/batch_extract_constrasts/
 
 # Output of conversion
-OUTPUT=$SCRATCH/neuroventure/raw/bids
+OUTPUT=$SCRATCH/neuroventure/derivatives/fmri-task
 # where the DICOMs are located
 BIDSROOT=$HOME/projects/def-patricia/data/neuroventure/bids
 FMRIPREPDIR=$HOME/projects/def-patricia/data/neuroventure/derivatives/fmriprep
 TASK="stop"
+
+# Change this to where you want your slurm outputs to go
+LOG_OUTPUT=$SCRATCH/batch_extract_constrasts/$TASK
 
 # This is what you change to grab a subject you want for a specific session
 subject_session_to_filter=("sub-020/ses-01" "sub-028/ses-01" "sub-029/ses-01" "sub-030/ses-01" "sub-033/ses-02" "sub-052/ses-03" "sub-069/ses-01" "sub-072/ses-01" "sub-073/ses-03" "sub-074/ses-02" "sub-079/ses-02" "sub-086/ses-01" "sub-090/ses-01" "sub-153/ses-01")
 
 # Set use_filter_paths to true or false depending on your needs
 use_filter_paths=true
+
+# if output derivatives folder does not exist create it 
+if [ ! -d $OUTPUT ]; then
+    mkdir -p $OUTPUT
+fi
 
 # if log output directory does not exist, create it
 if [ ! -d $LOG_OUTPUT ]; then
@@ -78,5 +84,5 @@ sbatch --array=0-`expr ${#filtered_paths[@]} - 1`%100 \
         --mem=2GB \
         --output=${LOG_OUTPUT}/slurm/extract_task_contrast_%A_%a.out \
         --error=${LOG_OUTPUT}/slurm/extract_task_contrast_%A_%a.err \
-        $PROJECT_HOME/neuroventure/fmri-contrasts/run_extract_task_contrasts.sh ${OUTPUT} ${LOG_OUTPUT} ${FMRIPREPDIR} ${TASK} ${filtered_paths[@]}
+        $PROJECT_HOME/neuroventure/fmri-contrasts/run_first_level_analysis.sh ${PROJECT_HOME} ${OUTPUT} ${LOG_OUTPUT} ${FMRIPREPDIR} ${TASK} ${filtered_paths[@]}
 

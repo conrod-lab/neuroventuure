@@ -13,13 +13,14 @@ log_detailed() {
     echo "$1,$2,$3,$4" >> $LOG_OUTPUT/extract_task_contrasts_detailed.log
 }
 
-OUTDIR=${1}
-LOG_OUTPUT=${2}
-FMRIPREPDIR=${3}
-TASK=${4}
+PROJECT_HOME=${1}
+OUTDIR=${2}
+LOG_OUTPUT=${3}
+FMRIPREPDIR=${4}
+TASK=${5}
 # receive all directories, and index them per job array
 
-BIDSDIRS=("${@:5}")
+BIDSDIRS=("${@:6}")
 BIDSDIR=${BIDSDIRS[${SLURM_ARRAY_TASK_ID}]}
 BIDSROOT=$(dirname "$(dirname "$BIDSDIR")")
 
@@ -33,6 +34,9 @@ SESSION_NUMBER=${SESSION_NUMBER%%/*}
 echo "Session Number: $SESSION_NUMBER"
 echo "Task: $TASK"
 
+SUBJECT_OUTPUT_DIR=${OUTDIR}/sub-${SUBJECT_NUMBER}/ses-${SESSION_NUMBER}/${TASK}
+# create derivatives output folder
+mkdir -p $SUBJECT_OUTPUT_DIR
 
 # Find the task nii.gz file in the subject's session directory
 FMRI_FILE=$(find ${BIDSDIR} -name "*${TASK}*.nii.gz")
@@ -101,7 +105,5 @@ combined_row="$participant_row $session_row"
 echo "$combined_row" >> "$OUTDIR/second_level_confounds.csv"
 
 
-SUBJECT_OUTPUT_DIR=${OUTDIR}/sub-${SUBJECT_NUMBER}/ses-${SESSION_NUMBER}
-
 # Run the python script to extract the task contrasts
-python $PROJECT_HOME/neuroventure/fmri-contrasts/extract_first_level_matrix.py $FMRI_FILE $EVENT_FILE $TASK $EVENT_FILE $MOTIONS_FILE $SUBJECT_OUTPUT_DIR
+python $PROJECT_HOME/neuroventure/fmri-contrasts/estimate_first_level.py $FMRI_FILE $EVENT_FILE $TASK $EVENT_FILE $MOTIONS_FILE $SUBJECT_OUTPUT_DIR
