@@ -10,15 +10,22 @@ import os
 from second_level_analysis import *
 from glm_matrix_qc import *
 
+def get_cmaps(num_subjects):
+
+    return cmaps
+
+
 def main(args):
     
     # Your script logic goes here, using the provided arguments
     first_level_folder = args.first_level_folder
+    num_subjects = args.num_subjects
     task = args.task
     outdir = args.outdir
 
     # get all contrasts from every subject into one list
-    cmaps = None 
+    
+    cmaps = get_cmaps(first_level_folder,num_subjects) 
 
     # get any other second level variables for design matrix
     # you can either pass a full path to a phenotype/<name of df variables>.tsv

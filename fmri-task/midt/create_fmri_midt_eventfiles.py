@@ -97,7 +97,7 @@ def parse_log_file(log_file_path, subject_label, session, run, bids_dir):
     # Create a DataFrame with the specified header
     df = pd.DataFrame(combined_data)
     df.replace('', None, inplace=True)
-
+    df = df.dropna()
     # Define the output directory and file path
     output_dir = os.path.join(bids_dir, f'sub-{subject_label}/ses-{session}/func/')
     # create the output directory if it doesn't exist

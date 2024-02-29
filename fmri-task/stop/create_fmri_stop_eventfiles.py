@@ -7,7 +7,7 @@ import chardet
 
 def get_trial_type(procedure, accuracy):
     # Define mappings for trial types
-    if int(accuracy):
+    if accuracy:
         if procedure == 'stoptrial':
             trial_type = 'stopsuccess'
         else:
@@ -99,6 +99,8 @@ def parse_log_file(log_file_path, subject_label, session, run, bids_dir):
 
     # Save the data to a TSV file
     df = pd.DataFrame(event_data, columns=['onset', 'duration', 'trial_type', 'response_time','stim_file', 'accuracy'])
+    #print(f"Df shape: {df.shape}")
+    #print(df.head())
     # Remove rows with None values
     df = df.dropna()
 
@@ -121,7 +123,7 @@ if __name__ == '__main__':
     # Argument parsing
     parser = argparse.ArgumentParser(description="Parse log file and extract event data.")
     parser.add_argument('--log_file', type=str, help="Path to the log file", default="/Users/sean/Projects/cpip/NeuroVen_STOP_fMRI_FRENCH_2JB-001-03.txt")
-    parser.add_argument('--subject-label', type=str, help="Subject label", default="NV_001")
+    parser.add_argument('--subject-label', type=str, help="Subject label", default="001")
     parser.add_argument('--session', type=str, help="Scanning session (timepoint)", default="V3")
     parser.add_argument('--run', type=str, help="Run for repeated acquisition (same scan parameters)", default="01")
     parser.add_argument('--bids-dir', type=str, help="BIDS directory", default="")

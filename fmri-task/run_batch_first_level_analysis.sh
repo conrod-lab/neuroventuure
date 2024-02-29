@@ -14,10 +14,10 @@ TASK="stop"
 ANATSPACE="MNI152NLin2009cAsym"
 
 # Change this to where you want your slurm outputs to go
-LOG_OUTPUT=$SCRATCH/batch_extract_constrasts/$TASK
+LOG_OUTPUT=$OUTPUT/logs/$TASK
 
 # This is what you change to grab a subject you want for a specific session
-subject_session_to_filter=("sub-020/ses-01" "sub-028/ses-01" "sub-029/ses-01" "sub-030/ses-01" "sub-033/ses-02" "sub-052/ses-03" "sub-069/ses-01" "sub-072/ses-01" "sub-073/ses-03" "sub-074/ses-02" "sub-079/ses-02" "sub-086/ses-01" "sub-090/ses-01" "sub-153/ses-01")
+subject_session_to_filter=("sub-020/ses-01")
 
 # Set use_filter_paths to true or false depending on your needs
 use_filter_paths=true
@@ -66,20 +66,21 @@ else
     
     filtered_paths=( $(find ${BIDSROOT} -maxdepth 2 -type d -name "ses-*" ) )
 
-    # Print the filtered paths
-    for path in "${filtered_paths[@]}"; do
-        echo "$path"
-    done
+
 fi
 
+# Print the filtered paths
+for path in "${filtered_paths[@]}"; do
+    echo "$path"
+done
 # We pass the found bids session paths to the slurm job array
 # If it fails to find the tsv file, or its empty, or fmriprep failed to produce
 # the necessary motion and confound regression, it will not run the python
 # script and simply log the subject/session that failed
+echo "Starting array jobs..."
 sbatch --array=0-`expr ${#filtered_paths[@]} - 1`%100 \
         --cpus-per-task=1 \
         --mem=2GB \
         --output=${LOG_OUTPUT}/slurm/extract_task_contrast_%A_%a.out \
         --error=${LOG_OUTPUT}/slurm/extract_task_contrast_%A_%a.err \
-        $PROJECT_HOME/neuroventure/fmri-contrasts/run_first_level_analysis.sh ${PROJECT_HOME} ${OUTPUT} ${LOG_OUTPUT} ${FMRIPREPDIR} ${TASK} ${ANATSPACE} ${filtered_paths[@]}
-
+        $PROJECT_HOME/neuroventure/fmri-task/run_first_level_analysis.sh ${PROJECT_HOME} ${OUTPUT} ${LOG_OUTPUT} ${FMRIPREPDIR} ${TASK} ${ANATSPACE} ${filtered_paths[@]}

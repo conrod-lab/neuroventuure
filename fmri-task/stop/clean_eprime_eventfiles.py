@@ -3,7 +3,6 @@ import json
 import glob
 import re
 import chardet
-import shutil
 
 # Define the task
 task = 'STOP'  # Change this to the desired task

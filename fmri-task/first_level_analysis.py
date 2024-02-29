@@ -54,8 +54,8 @@ def estimate_first_level_glm(fmri_img, tr, design_matrix):
 def get_stop_contrasts(basic_contrasts):
     
     contrasts = {
-    "stop-go": basic_contrasts["stop"] - basic_contrasts["go"],
-    "go-stop": -basic_contrasts["go"] + basic_contrasts["stop"],
+    "stopsuccess-go": basic_contrasts["stopsuccess"] - basic_contrasts["go"],
+    "go-stopsuccess": -basic_contrasts["go"] + basic_contrasts["stopsuccess"],
     # "effects_of_interest": np.vstack(
     #     (basic_contrasts["stop"], basic_contrasts["go"])
     # ),
