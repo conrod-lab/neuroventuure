@@ -72,6 +72,7 @@ def main(args):
     confounds_strategy = args.confounds_strategy # must be a tuple e.g. ("motion", "high_pass", "wm_csf")
     outdir = args.outdir
 
+    # this isnt working correctly for frame_times
     tr, n_scans, frame_times = get_task_scan_info(event_file)
 
     #TODO: load any type of confounds produced by fmriprep
@@ -101,7 +102,7 @@ def main(args):
 
     # Estimate first level GLM
     fmri_img = nib.load(fmri_file)
-    first_level_model = estimate_first_level_glm(fmri_img, first_level_design_matrix)
+    first_level_model = estimate_first_level_glm(fmri_img, tr, first_level_design_matrix)
 
     # Create contrasts for task
     contrasts = create_contrasts(first_level_design_matrix,task)
@@ -119,7 +120,7 @@ def main(args):
         first_level_model,
         contrasts=contrasts,
         title=f"{task}",
-        cluster_threshold=15,
+        cluster_threshold=0,
         min_distance=8.0,
         plot_type="glass",
     )

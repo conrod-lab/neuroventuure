@@ -4,11 +4,20 @@ import pandas as pd
 import os 
 import chardet
 
-# Define mappings for trial types
-trial_type_mapping = {
-    "gotrial": "go",
-    "stoptrial": "stop",
-}
+
+def get_trial_type(procedure, accuracy):
+    # Define mappings for trial types
+    if int(accuracy):
+        if procedure == 'stoptrial':
+            trial_type = 'stopsuccess'
+        else:
+            trial_type = 'go'
+    else:
+        if procedure == 'stoptrial':
+            trial_type = 'stopfail'
+        else:
+            trial_type = 'go'
+    return trial_type
 
 def parse_log_file(log_file_path, subject_label, session, run, bids_dir):
     # Read the log file
@@ -75,7 +84,7 @@ def parse_log_file(log_file_path, subject_label, session, run, bids_dir):
             accuracy = None
 
         # Map trial type
-        trial_type = trial_type_mapping.get(procedure, "unknown")
+        trial_type = get_trial_type(procedure, accuracy)
 
         # Append the extracted data to the lists
         onset_list.append(onset_time)

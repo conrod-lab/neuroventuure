@@ -45,8 +45,8 @@ def create_first_level_design_matrix(event_file,confounds,frame_times):
         
     return design_matrix
 
-def estimate_first_level_glm(fmri_img, design_matrix):
-    first_level_model = FirstLevelModel(t_r=2.0, noise_model='ar1', standardize=False)
+def estimate_first_level_glm(fmri_img, tr, design_matrix):
+    first_level_model = FirstLevelModel(t_r=tr, noise_model='ar1', standardize=False)
     first_level_model = first_level_model.fit(fmri_img, design_matrices=design_matrix)
     return first_level_model
 
@@ -55,11 +55,10 @@ def get_stop_contrasts(basic_contrasts):
     
     contrasts = {
     "stop-go": basic_contrasts["stop"] - basic_contrasts["go"],
-    "go-stop": -basic_contrasts["go"]
-    + basic_contrasts["stop"],
-    "effects_of_interest": np.vstack(
-        (basic_contrasts["stop"], basic_contrasts["go"])
-    ),
+    "go-stop": -basic_contrasts["go"] + basic_contrasts["stop"],
+    # "effects_of_interest": np.vstack(
+    #     (basic_contrasts["stop"], basic_contrasts["go"])
+    # ),
     }
     return contrasts
 
@@ -93,6 +92,7 @@ def create_contrasts(design_matrix,task='stop'):
 
 
 def estimate_contrasts(first_level_model, contrasts):
+    #  output_type can be ‘z_score’, ‘stat’, ‘p_value’, ‘effect_size’, ‘effect_variance’ or ‘all’.
     z_map = {}
     for contrast_id, contrast_val in contrasts.items():
         z_map[contrast_id] = first_level_model.compute_contrast(

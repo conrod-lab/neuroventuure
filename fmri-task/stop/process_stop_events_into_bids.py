@@ -8,7 +8,8 @@ def process_stop_subjects(subject_sessions, dry_run):
     base_dir = '/home/spinney/project/data/neuroventure/sourcedata/eprime'
     bids_dir = '/home/spinney/project/data/neuroventure/bids'
 
-    stop_fMRI_pattern = re.compile(r'NeuroVen_STOP_fMRI_FRENCH_2JB-(\d+)-\d+.txt')
+    stop_fMRI_pattern1 = re.compile(r'NeuroVen_STOP_fMRI_FRENCH_2JB-(\d+)-\d+.txt')
+    stop_fMRI_pattern2 = re.compile(r'NeuroVen_STOP_fMRI_FRENCH-(\d+)-\d+.txt')
     session_pattern = re.compile(r'V(\d+)')
 
     v_directories = ['V1', 'V2', 'V3']
@@ -22,9 +23,15 @@ def process_stop_subjects(subject_sessions, dry_run):
         v_dir_path = os.path.join(base_dir, v_dir, subject_folder)
 
         if os.path.exists(v_dir_path):
+            stop_fMRI_pattern = stop_fMRI_pattern1
             stop_fMRI_files = [f for f in os.listdir(v_dir_path) if stop_fMRI_pattern.match(f)]
 
+            if not stop_fMRI_files:
+                stop_fMRI_pattern = stop_fMRI_pattern2
+                stop_fMRI_files = [f for f in os.listdir(v_dir_path) if stop_fMRI_pattern.match(f)]
+            
             if stop_fMRI_files:
+
                 subject_match = stop_fMRI_pattern.match(stop_fMRI_files[0])
                 subject_label = subject_match.group(1).zfill(3)
                 subject_number = os.path.basename(subject_folder)[-3:]
@@ -48,7 +55,7 @@ def process_stop_subjects(subject_sessions, dry_run):
                         print(f"Run {run+1}; Logfile: {log_file}")
 
                         cmd = ['python', '/home/spinney/projects/def-patricia/spinney/neuroimaging-preprocessing/src/data/create_fmri_stop_eventfiles.py',
-                               '--log_file', log_file, '--subject-label', f'{subject_label}', '--session', f'{session}', '--run', f'{str(run+1).zfill(2)}', '--bids-dir', f'{bids_dir}']
+                                '--log_file', log_file, '--subject-label', f'{subject_label}', '--session', f'{session}', '--run', f'{str(run+1).zfill(2)}', '--bids-dir', f'{bids_dir}']
 
                         if dry_run:
                             print("Dry run: Would execute the following command:")
@@ -59,14 +66,17 @@ def process_stop_subjects(subject_sessions, dry_run):
                     run = "01"
                     log_file = os.path.join(v_dir_path, stop_fMRI_files[0])
                     cmd = ['python', '/home/spinney/projects/def-patricia/spinney/neuroimaging-preprocessing/src/data/create_fmri_stop_eventfiles.py',
-                           '--log_file', log_file, '--subject-label', f'{subject_label}', '--session', f'{session}', '--run', f'{run.zfill(2)}', '--bids-dir', f'{bids_dir}']
+                            '--log_file', log_file, '--subject-label', f'{subject_label}', '--session', f'{session}', '--run', f'{run.zfill(2)}', '--bids-dir', f'{bids_dir}']
 
                     if dry_run:
                         print("Dry run: Would execute the following command:")
                         print(' '.join(cmd))
                     else:
                         subprocess.run(cmd)
-
+            else:
+                print(f"Failed to find stop files for {subject_label} at session {session}. Continuing to next subject.")
+                continue
+            
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Traverse subject directories and run the script on STOP fMRI files.")
     parser.add_argument('--dry-run', action='store_true', help="Perform a dry run without executing the script.")
