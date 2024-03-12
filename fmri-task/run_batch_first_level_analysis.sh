@@ -9,7 +9,7 @@ PROJECT_HOME=/home/spinney/project/spinney
 OUTPUT=$SCRATCH/neuroventure/derivatives/fmri-task
 # where the DICOMs are located
 BIDSROOT=$HOME/projects/def-patricia/data/neuroventure/bids
-FMRIPREPDIR=$HOME/projects/def-patricia/data/neuroventure/derivatives/fmriprep
+FMRIPREPDIR=$HOME/projects/def-patricia/data/neuroventure/derivatives/fmriprep/derivatives/fmriprep
 TASK="stop"
 ANATSPACE="MNI152NLin2009cAsym"
 
