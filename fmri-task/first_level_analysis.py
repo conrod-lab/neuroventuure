@@ -36,8 +36,8 @@ def create_first_level_design_matrix(event_file,confounds,frame_times):
     design_matrix = make_first_level_design_matrix(
         frame_times,
         events,
-        drift_model="polynomial",
-        drift_order=3,
+        #drift_model="polynomial",
+        #drift_order=3,
         add_regs=confounds,
         #add_reg_names=add_reg_names,
         hrf_model=hrf_model,
@@ -46,7 +46,7 @@ def create_first_level_design_matrix(event_file,confounds,frame_times):
     return design_matrix
 
 def estimate_first_level_glm(fmri_img, tr, design_matrix):
-    first_level_model = FirstLevelModel(t_r=tr, noise_model='ar1', standardize=False)
+    first_level_model = FirstLevelModel(t_r=tr, noise_model='ar1')
     first_level_model = first_level_model.fit(fmri_img, design_matrices=design_matrix)
     return first_level_model
 
@@ -54,8 +54,8 @@ def estimate_first_level_glm(fmri_img, tr, design_matrix):
 def get_stop_contrasts(basic_contrasts):
     
     contrasts = {
-    "stopsuccess-go": basic_contrasts["stopsuccess"] - basic_contrasts["go"],
-    "go-stopsuccess": -basic_contrasts["go"] + basic_contrasts["stopsuccess"],
+    "stop-go": basic_contrasts["stopsuccess"] + basic_contrasts["stopfail"] - basic_contrasts["go"],
+    "stopsuccess-stopfail": basic_contrasts["stopsuccess"] - basic_contrasts["stopfail"],
     # "effects_of_interest": np.vstack(
     #     (basic_contrasts["stop"], basic_contrasts["go"])
     # ),

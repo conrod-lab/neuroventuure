@@ -17,7 +17,7 @@ ANATSPACE="MNI152NLin2009cAsym"
 LOG_OUTPUT=$OUTPUT/logs/$TASK
 
 # This is what you change to grab a subject you want for a specific session
-subject_session_to_filter=("sub-020/ses-01")
+subject_session_to_filter=("sub-019/ses-01")
 
 # Set use_filter_paths to true or false depending on your needs
 use_filter_paths=true
