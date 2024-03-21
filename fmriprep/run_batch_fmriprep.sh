@@ -2,10 +2,19 @@
 
 #set -eu
 
+module load git-annex
+
 BIDSROOT=/home/spinney/project/data/neuroventure/bids
 OUTPUT=/scratch/spinney/neuroventure/derivatives/fmriprep
 FMRIPREP_DATA=/scratch/spinney/neuroventure/derivatives/fmriprep/sourcedata
-RESULT_FILE=/home/spinney/project/spinney/neuroimaging-preprocessing/data/nv_anat_qc_2023_simplified.csv
+#RESULT_FILE=/home/spinney/project/spinney/neuroimaging-preprocessing/data/nv_anat_qc_2023_simplified.csv
+RESULT_FILE=/home/spinney/project/spinney/neuroimaging-preprocessing/data/nv_anat_qc_2023_test.csv
+LOG_OUTPUT=$OUTPUT/logs/
+
+# activate datalad env
+source $SCRATCH/venv_datalad/bin/activate
+
+cp $BIDSROOT/dataset_description.json $FMRIPREP_DATA/
 
 while IFS=, read -r subject session run_combined; do
     # Remove carriage return characters from run_combined
@@ -13,7 +22,7 @@ while IFS=, read -r subject session run_combined; do
     
     # Copy anat
     # Use find to get the correct paths
-    source_paths=($(find "$BIDSROOT/$subject/$session/anat" -type f -name "${run_combined}*"))
+    source_paths=($(find "$BIDSROOT/$subject/$session/anat" -name "${run_combined}*"))
 
     if [ ${#source_paths[@]} -eq 0 ]; then
         echo "Data not found for $subject, $session, $run_combined"
@@ -28,6 +37,12 @@ while IFS=, read -r subject session run_combined; do
         mkdir -p "$destination_path"
     fi
 
+    for source_path in "${source_paths[@]}"; do
+        echo "Unlocking $source_path"
+        cd "$(dirname "$source_path")"
+        datalad unlock "$source_path"
+    done
+
     # Copy data from source to destination
     #cp -v "${source_paths[@]}" "$destination_path"
     rsync -rhv --info=progress2 "${source_paths[@]}" "$destination_path"
@@ -39,10 +54,14 @@ while IFS=, read -r subject session run_combined; do
     source_paths=($(find "$BIDSROOT/$subject/$session/func" -type f -name "*${run_part}*"))
 
     if [ ${#source_paths[@]} -eq 0 ]; then
-        echo "Data not found for $subject, $session, $run_combined"
-        continue
-    fi
+        # Attempt with "run-01" if the initial attempt fails
+        source_paths=($(find "$BIDSROOT/$subject/$session/func" -type f -name "*run-01*"))
 
+        if [ ${#source_paths[@]} -eq 0 ]; then
+            echo "Data not found for $subject, $session, $run_combined"
+            continue
+        fi
+    fi
     # Generate the destination path for the data with anat subdirectories
     destination_path="${FMRIPREP_DATA}/${subject}/${session}/func/"
 
@@ -50,6 +69,12 @@ while IFS=, read -r subject session run_combined; do
     if [ ! -d "$destination_path" ]; then
         mkdir -p "$destination_path"
     fi
+
+    for source_path in "${source_paths[@]}"; do
+        echo "Unlocking $source_path"
+        cd "$(dirname "$source_path")"
+        datalad unlock "$source_path"
+    done
 
     # Copy data from source to destination
     #cp -v "${source_paths[@]}" "$destination_path"
@@ -59,19 +84,15 @@ done < "$RESULT_FILE"
 
 # find all DICOM directories that start with "voice"
 subject_numbers=($(find "$FMRIPREP_DATA" -maxdepth 2 -type d -name "sub-*" | cut -d'-' -f2))
-subject_numbers=(155)
+subject_numbers=(011)
 
-# submit to another script as a job array on SLURM
-#sbatch --array=0-`expr ${#DCMDIRS[@]} - 1` /home/spinney/projects/def-patricia/spinney/neuroimaging-preprocessing/src/models/run_heudiconv.sh ${OUTPUT} ${DCMDIRS[@]}
-
-# sbatch --cpus-per-task=1 --mem=2GB --output=/scratch/spinney/neuroventure/raw/tmp/output/heudiconv_%A.out --error=/scratch/spinney/neuroventure/raw/tmp/error/heudiconv_%A.err \
-#   /home/spinney/projects/def-patricia/spinney/neuroimaging-preprocessing/src/models/run_heudiconv.sh ${OUTPUT} "${DCMDIRS[@]}"
+mkdir -p ${LOG_OUTPUT}/slurm/
 
 #More ressources
 sbatch --array=0-`expr ${#subject_numbers[@]} - 1`%100 \
        --cpus-per-task=8 \
-       --mem=10GB \
+       --mem=50GB \
        --time=12:00:00 \
-       --output=/home/spinney/scratch/neuroventure/raw/tmp/output/fmriprep/fmriprep_%A_%a.out \
-       --error=/home/spinney/scratch/neuroventure/raw/tmp/error/fmriprep/fmriprep_%A_%a.err \
+       --output=${LOG_OUTPUT}/slurm/fmriprep_%A_%a.out \
+       --error=${LOG_OUTPUT}/slurm/fmriprep_%A_%a.err \
        /home/spinney/projects/def-patricia/spinney/neuroimaging-preprocessing/src/models/fmriprep/run_fmriprep.sh ${FMRIPREP_DATA} ${OUTPUT} ${subject_numbers[@]}

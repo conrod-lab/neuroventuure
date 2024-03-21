@@ -20,7 +20,7 @@ LOG_OUTPUT=$OUTPUT/logs/$TASK
 subject_session_to_filter=("sub-019/ses-01")
 
 # Set use_filter_paths to true or false depending on your needs
-use_filter_paths=true
+use_filter_paths=false
 
 # if output derivatives folder does not exist create it 
 if [ ! -d $OUTPUT ]; then
@@ -79,8 +79,8 @@ done
 # script and simply log the subject/session that failed
 echo "Starting array jobs..."
 sbatch --array=0-`expr ${#filtered_paths[@]} - 1`%100 \
-        --cpus-per-task=1 \
-        --mem=2GB \
-        --output=${LOG_OUTPUT}/slurm/extract_task_contrast_%A_%a.out \
-        --error=${LOG_OUTPUT}/slurm/extract_task_contrast_%A_%a.err \
+        --cpus-per-task=2 \
+        --mem=10GB \
+        --output=${LOG_OUTPUT}/slurm/firstlevelstop_%A_%a.out \
+        --error=${LOG_OUTPUT}/slurm/firstlevelstop_%A_%a.err \
         $PROJECT_HOME/neuroventure/fmri-task/run_first_level_analysis.sh ${PROJECT_HOME} ${OUTPUT} ${LOG_OUTPUT} ${FMRIPREPDIR} ${TASK} ${ANATSPACE} ${filtered_paths[@]}

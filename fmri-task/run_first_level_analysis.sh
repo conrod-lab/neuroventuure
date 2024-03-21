@@ -112,3 +112,19 @@ mkdir -p $SUBJECT_OUTPUT_DIR
 # Run the python script to extract the task contrasts
 #python $PROJECT_HOME/neuroventure/fmri-task/estimate_first_level.py $FMRI_FILE $EVENT_FILE $TASK $EVENT_FILE $MOTIONS_FILE $SUBJECT_OUTPUT_DIR
 python $PROJECT_HOME/neuroventure/fmri-task/estimate_first_level.py "$FMRI_FILE" "$EVENT_FILE" "$TASK"  "motion"  "$SUBJECT_OUTPUT_DIR"
+
+# rename logs using subject number
+original_out="firstlevelstop_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.out"
+original_err="firstlevelstop_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.err"
+
+# Rename logs with subject number
+new_out="firstlevelstop_sub-${SUBJECT_NUM}.out"
+new_err="firstlevelstop_sub-${SUBJECT_NUM}.err"
+
+# Copy and rename logs
+mv "${LOG_DIR}/slurm/${original_out}" "${LOG_DIR}/slurm/${new_out}"
+mv "${LOG_DIR}/slurm/${original_err}" "${LOG_DIR}/slurm/${new_err}"
+
+echo "Logs renamed:"
+echo "Original OUT log: $original_out --> New OUT log: $new_out"
+echo "Original ERR log: $original_err --> New ERR log: $new_err"
