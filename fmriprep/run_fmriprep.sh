@@ -4,7 +4,7 @@ set -eu
 
 module load StdEnv/2020 apptainer/1.1.8
 
-CONTAINER_DIR=$PROJECT/containers
+CONTAINER_DIR=$PROJECT/containers/fmriprep
 
 # # Check if the correct number of arguments is provided
 # if [ "$#" -ne 2 ]; then
@@ -18,23 +18,12 @@ OUTPUT=${2}
 SUBJECT_NUMS=("${@:3}")
 SUBJECT_NUM=${SUBJECT_NUMS[${SLURM_ARRAY_TASK_ID}]}
 
+LOG_DIR=$OUTPUT/logs/
+
 # Logging Function
 log() {
     echo "$(date +'%Y-%m-%d %H:%M:%S') - $1"
 }
-
-
-# singularity run --cleanenv ${CONTAINER_DIR}/fmriprep-latest.simg \
-#   $BIDSROOT $OUTPUT \
-#   participant \
-#   --participant-label $SUBJECT_NUM -t "rest" --n_cpus 8 -w $SLURM_TMPDIR
-
-
-#SUBJECT_NUM=${subject_numbers[0]}
-# singularity run --cleanenv ${CONTAINER_DIR}/fmriprep-latest.simg \
-# $FMRIPREP_DATA $OUTPUT \
-# participant \
-# --participant-label $SUBJECT_NUM -t "rest" --n_cpus 8 -w $SCRATCH
 
 log "Run singularity image"
 
@@ -55,6 +44,22 @@ singularity run --cleanenv \
   --debug all
 
 log "Run complete."
+
+# rename logs using subject number 
+original_out="fmriprep_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.out"
+original_err="fmriprep_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.err"
+
+# Rename logs with subject number
+new_out="fmriprep_sub-${SUBJECT_NUM}.out"
+new_err="fmriprep_sub-${SUBJECT_NUM}.err"
+
+# Copy and rename logs
+mv "${LOG_DIR}/slurm/${original_out}" "${LOG_DIR}/slurm/${new_out}"
+mv "${LOG_DIR}/slurm/${original_err}" "${LOG_DIR}/slurm/${new_err}"
+
+echo "Logs renamed:"
+echo "Original OUT log: $original_out --> New OUT log: $new_out"
+echo "Original ERR log: $original_err --> New ERR log: $new_err"
 
 # singularity run --cleanenv -B $OUTPUT:/work ${CONTAINER_DIR}/fmriprep_23.1.4.sif \
 #   /work/sourcedata /work/derivatives/fmriprep \

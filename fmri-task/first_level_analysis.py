@@ -65,10 +65,8 @@ def estimate_first_level_glm(fmri_img, tr, design_matrix,brain_mask,sample_masks
 def get_stop_contrasts(basic_contrasts):
     
     contrasts = {
-    "go": basic_contrasts["go"],
-    "stopsuccess-go": basic_contrasts["stopsuccess"] - basic_contrasts["go"],
+    "stop-go": basic_contrasts["stopsuccess"] + basic_contrasts["stopfail"] - basic_contrasts["go"],
     "stopsuccess-stopfail": basic_contrasts["stopsuccess"] - basic_contrasts["stopfail"],
-    #"go-stopsuccess": -basic_contrasts["go"] + basic_contrasts["stopsuccess"],
     # "effects_of_interest": np.vstack(
     #     (basic_contrasts["stop"], basic_contrasts["go"])
     # ),
@@ -112,4 +110,3 @@ def estimate_contrasts(first_level_model, contrasts):
             contrast_val, output_type="z_score"
         )
     return z_map
-

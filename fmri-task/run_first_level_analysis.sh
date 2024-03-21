@@ -3,6 +3,8 @@ set -eu
 
 module load StdEnv/2020 apptainer/1.1.8
 
+source $SCRATCH/venv_datalad/bin/activate
+
 log() {
     echo "$(date +'%Y-%m-%d %H:%M:%S') - $1"
 }
@@ -37,7 +39,7 @@ echo "Task: $TASK"
 
 # Find the task nii.gz file in the subject's session directory
 # sub-001_ses-01_task-stop_run-01_space-MNI152NLin2009cAsym_desc-preproc_bold.json
-FMRI_FILE=$(find ${FMRIPREPDIR} -name "*${TASK}*${ANATSPACE}*preproc_bold.nii.gz")
+FMRI_FILE=$(find ${FMRIPREPDIR} -name "*sub-${SUBJECT_NUMBER}*ses-${SESSION_NUMBER}*${TASK}*${ANATSPACE}*preproc_bold.nii.gz")
 
 # Check that the task file exists or log 
 if [ -z "$FMRI_FILE" ]; then
@@ -62,7 +64,7 @@ if [ -z "$EVENT_FILE" ]; then
 fi
 
 # Find the fmriprep motions file (confounds), check that it exists
-MOTIONS_FILE=$(find ${FMRIPREPDIR} -name "*${SUBJECT_NUMBER}*${SESSION_NUMBER}*${TASK}*_desc-confounds_regressors.tsv")
+MOTIONS_FILE=$(find ${FMRIPREPDIR} -name "*${SUBJECT_NUMBER}*${SESSION_NUMBER}*${TASK}*_desc-confounds_timeseries.tsv")
 
 if [ -z "$MOTIONS_FILE" ]; then
     echo "No motions file found for subject ${SUBJECT_NUMBER} session ${SESSION_NUMBER} task ${TASK} in ${FMRIPREPDIR}"
@@ -108,4 +110,21 @@ SUBJECT_OUTPUT_DIR=${OUTDIR}/sub-${SUBJECT_NUMBER}/ses-${SESSION_NUMBER}
 mkdir -p $SUBJECT_OUTPUT_DIR
 
 # Run the python script to extract the task contrasts
-python $PROJECT_HOME/neuroventure/fmri-contrasts/estimate_first_level.py $FMRI_FILE $EVENT_FILE $TASK $EVENT_FILE $MOTIONS_FILE $SUBJECT_OUTPUT_DIR
+#python $PROJECT_HOME/neuroventure/fmri-task/estimate_first_level.py $FMRI_FILE $EVENT_FILE $TASK $EVENT_FILE $MOTIONS_FILE $SUBJECT_OUTPUT_DIR
+python $PROJECT_HOME/neuroventure/fmri-task/estimate_first_level.py "$FMRI_FILE" "$EVENT_FILE" "$TASK"  "motion"  "$SUBJECT_OUTPUT_DIR"
+
+# rename logs using subject number
+original_out="firstlevelstop_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.out"
+original_err="firstlevelstop_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.err"
+
+# Rename logs with subject number
+new_out="firstlevelstop_sub-${SUBJECT_NUM}.out"
+new_err="firstlevelstop_sub-${SUBJECT_NUM}.err"
+
+# Copy and rename logs
+mv "${LOG_DIR}/slurm/${original_out}" "${LOG_DIR}/slurm/${new_out}"
+mv "${LOG_DIR}/slurm/${original_err}" "${LOG_DIR}/slurm/${new_err}"
+
+echo "Logs renamed:"
+echo "Original OUT log: $original_out --> New OUT log: $new_out"
+echo "Original ERR log: $original_err --> New ERR log: $new_err"
