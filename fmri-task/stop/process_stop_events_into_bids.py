@@ -18,8 +18,8 @@ def extract_subject_session_run_id(bids_file):
 
 def process_stop_subjects(subject_sessions, dry_run):
     # Base directory containing the subject folders
-    base_dir = '/home/spinney/project/data/neuroventure/derivatives/eprime'
-    bids_dir = '/home/spinney/project/data/neuroventure/bids'
+    base_dir = '/Users/seanspinney/data/neuroventure-derivatives/eprime'#'/home/spinney/project/data/neuroventure/derivatives/eprime'
+    bids_dir = '/Users/seanspinney/data/neuroventure' #/home/spinney/project/data/neuroventure/bids'
 
     if not subject_sessions:
         subject_sessions = glob.glob(os.path.join(base_dir, "**", "sub-*stop*eprime.txt"), recursive=True)
@@ -30,7 +30,7 @@ def process_stop_subjects(subject_sessions, dry_run):
             print(f"Could not extract subject ID, session ID, and run ID from {subject_logfile}. Skipping.")
             continue
 
-        cmd = ['python', '/home/spinney/project/spinney/neuroventure/fmri-task/stop/create_fmri_stop_eventfiles.py',
+        cmd = ['python', '/Users/seanspinney/projects/neuroventure/fmri-task/stop/create_fmri_stop_eventfiles.py',
                 '--log_file', subject_logfile, '--subject-label', f'{subject_id}', '--session', f'{session_id}', '--run', f'{run_id}', '--bids-dir', f'{bids_dir}']
 
         if dry_run:

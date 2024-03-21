@@ -2,3 +2,7 @@
 *.out
 *.err
 __pycache__
+.DS_Store
+fmri-task/.DS_Store
+fmri-task/output/
+nilearn_cache/
