@@ -1,7 +1,10 @@
 #!/bin/bash
 
+module load git-annex
+
 set -eu
 
+source $SCRATCH/venv_datalad/bin/activate
 # Change this to where you git cloned the project neuroventure:
 PROJECT_HOME=/home/spinney/project/spinney
 
@@ -17,10 +20,10 @@ ANATSPACE="MNI152NLin2009cAsym"
 LOG_OUTPUT=$OUTPUT/logs/$TASK
 
 # This is what you change to grab a subject you want for a specific session
-subject_session_to_filter=("sub-019/ses-01")
+subject_session_to_filter=("sub-011/ses-01")
 
 # Set use_filter_paths to true or false depending on your needs
-use_filter_paths=false
+use_filter_paths=true
 
 # if output derivatives folder does not exist create it 
 if [ ! -d $OUTPUT ]; then
@@ -71,7 +74,9 @@ fi
 
 # Print the filtered paths
 for path in "${filtered_paths[@]}"; do
-    echo "$path"
+    echo "Unlocking $path"
+    cd $path
+    datalad unlock $path
 done
 # We pass the found bids session paths to the slurm job array
 # If it fails to find the tsv file, or its empty, or fmriprep failed to produce

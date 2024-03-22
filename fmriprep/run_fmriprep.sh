@@ -4,21 +4,15 @@ set -eu
 
 module load StdEnv/2020 apptainer/1.1.8
 
-CONTAINER_DIR=$PROJECT/containers/fmriprep
-
-# # Check if the correct number of arguments is provided
-# if [ "$#" -ne 2 ]; then
-#     log "Usage: $0 <DATASET_DIR> <SUBJECT_NUM>"
-#     exit 1
-# fi
+CONTAINER_DIR=/home/spinney/project/containers/fmriprep
 
 BIDSROOT=${1}
 OUTPUT=${2}
-#SUBJECT_NUM="$2"
 SUBJECT_NUMS=("${@:3}")
 SUBJECT_NUM=${SUBJECT_NUMS[${SLURM_ARRAY_TASK_ID}]}
 
 LOG_DIR=$OUTPUT/logs/
+
 
 # Logging Function
 log() {
@@ -27,6 +21,7 @@ log() {
 
 log "Run singularity image"
 
+# fmriprep_23.1.4.sif
 export APPTAINERENV_FS_LICENSE=$HOME/.licenses/freesurfer/license.txt
 export FS_LICENSE=$HOME/.licenses/freesurfer/license.txt
 singularity run --cleanenv \
@@ -40,7 +35,7 @@ singularity run --cleanenv \
   --omp-nthreads 8 \
   -w /work \
   -vvv \
-  --fs-license-file $FS_LICENSE
+  --fs-license-file $FS_LICENSE \
   --debug all
 
 log "Run complete."

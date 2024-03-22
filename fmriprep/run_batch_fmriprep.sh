@@ -84,7 +84,7 @@ done < "$RESULT_FILE"
 
 # find all DICOM directories that start with "voice"
 subject_numbers=($(find "$FMRIPREP_DATA" -maxdepth 2 -type d -name "sub-*" | cut -d'-' -f2))
-subject_numbers=(011)
+subject_numbers=(019)
 
 mkdir -p ${LOG_OUTPUT}/slurm/
 
@@ -95,4 +95,4 @@ sbatch --array=0-`expr ${#subject_numbers[@]} - 1`%100 \
        --time=12:00:00 \
        --output=${LOG_OUTPUT}/slurm/fmriprep_%A_%a.out \
        --error=${LOG_OUTPUT}/slurm/fmriprep_%A_%a.err \
-       /home/spinney/projects/def-patricia/spinney/neuroimaging-preprocessing/src/models/fmriprep/run_fmriprep.sh ${FMRIPREP_DATA} ${OUTPUT} ${subject_numbers[@]}
+       /home/spinney/project/spinney/neuroventure/fmriprep/run_fmriprep.sh ${FMRIPREP_DATA} ${OUTPUT} ${subject_numbers[@]}

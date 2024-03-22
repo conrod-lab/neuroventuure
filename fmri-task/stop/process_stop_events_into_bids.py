@@ -30,6 +30,7 @@ def process_stop_subjects(subject_sessions, dry_run):
             print(f"Could not extract subject ID, session ID, and run ID from {subject_logfile}. Skipping.")
             continue
 
+        print(f"Processing subject {subject_id}, session {session_id}, run {run_id}.")
         cmd = ['python', '/home/spinney/project/spinney/neuroventure/fmri-task/stop/create_fmri_stop_eventfiles.py',
                 '--log_file', subject_logfile, '--subject-label', f'{subject_id}', '--session', f'{session_id}', '--run', f'{run_id}', '--bids-dir', f'{bids_dir}']
 
