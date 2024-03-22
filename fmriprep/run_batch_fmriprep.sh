@@ -7,8 +7,8 @@ module load git-annex
 BIDSROOT=/home/spinney/project/data/neuroventure/bids
 OUTPUT=/scratch/spinney/neuroventure/derivatives/fmriprep
 FMRIPREP_DATA=/scratch/spinney/neuroventure/derivatives/fmriprep/sourcedata
-#RESULT_FILE=/home/spinney/project/spinney/neuroimaging-preprocessing/data/nv_anat_qc_2023_simplified.csv
-RESULT_FILE=/home/spinney/project/spinney/neuroimaging-preprocessing/data/nv_anat_qc_2023_test.csv
+RESULT_FILE=/home/spinney/project/spinney/neuroimaging-preprocessing/data/nv_anat_qc_2023_simplified.csv
+#RESULT_FILE=/home/spinney/project/spinney/neuroimaging-preprocessing/data/nv_anat_qc_2023_test.csv
 LOG_OUTPUT=$OUTPUT/logs/
 
 # activate datalad env
@@ -84,7 +84,7 @@ done < "$RESULT_FILE"
 
 # find all DICOM directories that start with "voice"
 subject_numbers=($(find "$FMRIPREP_DATA" -maxdepth 2 -type d -name "sub-*" | cut -d'-' -f2))
-subject_numbers=(019)
+#subject_numbers=(019)
 
 mkdir -p ${LOG_OUTPUT}/slurm/
 
