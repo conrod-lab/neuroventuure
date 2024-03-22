@@ -9,6 +9,8 @@ from nilearn.interfaces.fmriprep import load_confounds
 from first_level_analysis import *
 #from second_level_analysis import *
 
+from nilearn.plotting import plot_design_matrix
+from nilearn.datasets import fetch_icbm152_brain_gm_mask
 def tuple_from_string(s):
     if ',' in s:
         return tuple(s.split(','))
@@ -78,7 +80,7 @@ def main(args):
     #TODO: load any type of confounds produced by fmriprep
     # confounds is a pandas df and mask is intended
     # for when scrubbing is used (removing bad motion frames)
-    confounds, mask = load_confounds(
+    confounds, sample_masks = load_confounds(
             fmri_file,
             strategy=confounds_strategy,
             motion="full",
@@ -92,8 +94,14 @@ def main(args):
             ica_aroma="full",
             demean=True,
         )  
+
     n_scans = confounds.shape[0]
     frame_times = np.linspace(0, (n_scans - 1) * tr, n_scans)
+
+    # Censoring of 50 volumes from the beginning of the scan (looks bad)
+    # if not sample_masks:
+    #     sample_masks = np.arange(n_scans )[50:]
+
     # Run first level analysis
     first_level_design_matrix = create_first_level_design_matrix(event_file,confounds,frame_times)
     # save this to the output direction 
@@ -102,7 +110,14 @@ def main(args):
 
     # Estimate first level GLM
     fmri_img = nib.load(fmri_file)
-    first_level_model = estimate_first_level_glm(fmri_img, tr, first_level_design_matrix)
+    mask_fname = fmri_file.replace('preproc_bold','brain_mask')
+    #mask_img = nib.load(mask_fname)
+    mask_img = fetch_icbm152_brain_gm_mask()
+    first_level_model = estimate_first_level_glm(fmri_img, 
+                                                 tr, 
+                                                 first_level_design_matrix,
+                                                 mask_img,
+                                                 sample_masks)
 
     # Create contrasts for task
     contrasts = create_contrasts(first_level_design_matrix,task)
@@ -114,12 +129,16 @@ def main(args):
     for contrast_id, z_map in z_maps.items():
         bids_output_path = bidsify_output(outdir,fmri_file,f'zmap-{contrast_id}', 'nii.gz')
         z_map.to_filename(bids_output_path)
+        #plot_zmap(z_map,contrast_id,threshold=0.001)
+        print(f"Saved z-map for contrast {contrast_id} to {bids_output_path}")
 
     # Make a report for qc
     report = make_glm_report(
         first_level_model,
         contrasts=contrasts,
         title=f"{task}",
+        #height_control="fpr",
+        alpha=0.05,
         cluster_threshold=0,
         min_distance=8.0,
         plot_type="glass",
@@ -138,5 +157,14 @@ if __name__ == "__main__":
                         help='Confounds strategy as a tuple (default: ("motion", "high_pass", "wm_csf"))')
     parser.add_argument('outdir', type=str, help='Output directory for subject/session')
 
-    args = parser.parse_args()
+    #args = parser.parse_args()
+    args = parser.parse_args([
+        '/Users/seanspinney/data/neuroventure-derivatives/fmriprep/sub-019/ses-01/func/sub-019_ses-01_task-stop_run-01_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz',
+        '/Users/seanspinney/data/neuroventure/sub-019/ses-01/func/sub-019_ses-01_task-stop_run-01_events.tsv',
+        'stop',
+        'motion',
+        '/Users/seanspinney/projects/neuroventure/fmri-task/output'
+    ])
     main(args)
+
+   # python estimate_first_level.py /Users/seanspinney/data/neuroventure-derivatives/fmriprep/sub-019/ses-01/func/sub-019_ses-01_task-stop_run-01_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz /Users/seanspinney/data/neuroventure/sub-019/ses-01/func/sub-019_ses-01_task-stop_run-01_events.tsv stop motion /Users/seanspinney/projects/neuroventure/fmri-task/output

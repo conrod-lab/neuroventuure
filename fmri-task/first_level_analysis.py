@@ -2,6 +2,9 @@
 import pandas as pd
 from nilearn.glm.first_level import make_first_level_design_matrix
 from nilearn.glm.first_level import FirstLevelModel
+from scipy.stats import norm
+from nilearn import plotting
+
 import numpy as np
 
 def read_tsv_file(file_path):
@@ -32,7 +35,8 @@ def create_first_level_design_matrix(event_file,confounds,frame_times):
     )
 
     #TODO: Confirm parameters
-    hrf_model = "glover"
+    #hrf_model ="spm + derivative"
+    hrf_model ="spm"
     design_matrix = make_first_level_design_matrix(
         frame_times,
         events,
@@ -45,9 +49,16 @@ def create_first_level_design_matrix(event_file,confounds,frame_times):
         
     return design_matrix
 
-def estimate_first_level_glm(fmri_img, tr, design_matrix):
-    first_level_model = FirstLevelModel(t_r=tr, noise_model='ar1')
-    first_level_model = first_level_model.fit(fmri_img, design_matrices=design_matrix)
+def estimate_first_level_glm(fmri_img, tr, design_matrix,brain_mask,sample_masks=None):
+    first_level_model = FirstLevelModel(t_r=tr, 
+                                        noise_model='ar1', 
+                                        smoothing_fwhm=5, 
+                                        slice_time_ref=0.5,
+                                        mask_img=brain_mask)
+    
+    first_level_model = first_level_model.fit(fmri_img, 
+                                              design_matrices=design_matrix,
+                                              sample_masks=sample_masks)
     return first_level_model
 
 
