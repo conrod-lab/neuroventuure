@@ -51,11 +51,11 @@ while IFS=, read -r subject session run_combined; do
     # Use find to get the correct paths
     IFS="_" read -ra parts <<< "$run_combined"
     run_part="${parts[-1]}"
-    source_paths=($(find "$BIDSROOT/$subject/$session/func" -type f -name "*${run_part}*"))
+    source_paths=($(find "$BIDSROOT/$subject/$session/func" -name "*${run_part}*"))
 
     if [ ${#source_paths[@]} -eq 0 ]; then
         # Attempt with "run-01" if the initial attempt fails
-        source_paths=($(find "$BIDSROOT/$subject/$session/func" -type f -name "*run-01*"))
+        source_paths=($(find "$BIDSROOT/$subject/$session/func" -name "*run-01*"))
 
         if [ ${#source_paths[@]} -eq 0 ]; then
             echo "Data not found for $subject, $session, $run_combined"

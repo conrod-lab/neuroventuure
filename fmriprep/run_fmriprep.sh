@@ -6,6 +6,7 @@ module load StdEnv/2020 apptainer/1.1.8
 
 CONTAINER_DIR=/home/spinney/project/containers/fmriprep
 
+SLURM_ARRAY_TASK_ID=0
 BIDSROOT=${1}
 OUTPUT=${2}
 SUBJECT_NUMS=("${@:3}")
