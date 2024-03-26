@@ -18,8 +18,8 @@ def extract_subject_session_run_id(bids_file):
 
 def process_stop_subjects(subject_sessions, dry_run):
     # Base directory containing the subject folders
-    base_dir = '/Users/seanspinney/data/neuroventure-derivatives/eprime'#'/home/spinney/project/data/neuroventure/derivatives/eprime'
-    bids_dir = '/Users/seanspinney/data/neuroventure' #/home/spinney/project/data/neuroventure/bids'
+    base_dir = '/home/spinney/project/data/neuroventure/derivatives/eprime'
+    bids_dir = '/home/spinney/project/data/neuroventure/bids'
 
     if not subject_sessions:
         subject_sessions = glob.glob(os.path.join(base_dir, "**", "sub-*stop*eprime.txt"), recursive=True)

@@ -15,6 +15,8 @@ LOG_OUTPUT=$OUTPUT/logs/
 source $SCRATCH/venv_datalad/bin/activate
 
 cp $BIDSROOT/dataset_description.json $FMRIPREP_DATA/
+cp $BIDSROOT/*.json $FMRIPREP_DATA/
+cp $BIDSROOT/*.text $FMRIPREP_DATA/
 
 while IFS=, read -r subject session run_combined; do
     # Remove carriage return characters from run_combined
@@ -45,7 +47,7 @@ while IFS=, read -r subject session run_combined; do
 
     # Copy data from source to destination
     #cp -v "${source_paths[@]}" "$destination_path"
-    rsync -rhv --info=progress2 "${source_paths[@]}" "$destination_path"
+    rsync -rhv --info=progress2 --ignore-existing "${source_paths[@]}" "$destination_path"
 
     # Copy func
     # Use find to get the correct paths
@@ -78,7 +80,7 @@ while IFS=, read -r subject session run_combined; do
 
     # Copy data from source to destination
     #cp -v "${source_paths[@]}" "$destination_path"
-    rsync -rhv --info=progress2 "${source_paths[@]}" "$destination_path"
+    rsync -rhv --info=progress2 --ignore-existing "${source_paths[@]}" "$destination_path"
 
 done < "$RESULT_FILE"
 

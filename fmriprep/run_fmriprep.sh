@@ -36,7 +36,8 @@ singularity run --cleanenv \
   -w /work \
   -vvv \
   --fs-license-file $FS_LICENSE \
-  --debug all
+  --debug all \
+  --skip_bids_validation
 
 log "Run complete."
 

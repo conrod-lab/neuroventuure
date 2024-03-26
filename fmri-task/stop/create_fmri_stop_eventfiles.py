@@ -101,6 +101,8 @@ def parse_log_file(log_file_path, subject_label, session, run, bids_dir):
     df = pd.DataFrame(event_data, columns=['onset', 'duration', 'trial_type', 'response_time','stim_file', 'accuracy'])
     #print(f"Df shape: {df.shape}")
     #print(df.head())
+
+    df['duration'].fillna(1.0, inplace=True)
     # Remove rows with None values
     df = df.dropna()
 
