@@ -80,6 +80,7 @@ def main(args):
     #TODO: load any type of confounds produced by fmriprep
     # confounds is a pandas df and mask is intended
     # for when scrubbing is used (removing bad motion frames)
+    #removed global signal and ica aroma
     confounds, sample_masks = load_confounds(
             fmri_file,
             strategy=confounds_strategy,
@@ -88,10 +89,7 @@ def main(args):
             fd_threshold=0.2,
             std_dvars_threshold=3,
             wm_csf="basic",
-            global_signal="basic",
             compcor="anat_combined",
-            n_compcor="all",
-            ica_aroma="full",
             demean=True,
         )  
 
