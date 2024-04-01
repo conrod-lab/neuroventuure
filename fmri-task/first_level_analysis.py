@@ -52,7 +52,7 @@ def create_first_level_design_matrix(event_file,confounds,frame_times):
 def estimate_first_level_glm(fmri_img, tr, design_matrix,brain_mask,sample_masks=None):
     first_level_model = FirstLevelModel(t_r=tr, 
                                         noise_model='ar1', 
-                                        smoothing_fwhm=5, 
+                                        smoothing_fwhm=6, 
                                         slice_time_ref=0.5,
                                         mask_img=brain_mask)
     
