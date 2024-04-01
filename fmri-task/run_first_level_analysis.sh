@@ -118,8 +118,8 @@ original_out="firstlevelstop_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.out"
 original_err="firstlevelstop_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.err"
 
 # Rename logs with subject number
-new_out="firstlevelstop_sub-${SUBJECT_NUM}.out"
-new_err="firstlevelstop_sub-${SUBJECT_NUM}.err"
+new_out="firstlevelstop_sub-${SUBJECT_NUMBER}_ses-${SESSION_NUMBER}.out"
+new_err="firstlevelstop_sub-${SUBJECT_NUMBER}_ses-${SESSION_NUMBER}.err"
 
 # Copy and rename logs
 mv "${LOG_DIR}/slurm/${original_out}" "${LOG_DIR}/slurm/${new_out}"

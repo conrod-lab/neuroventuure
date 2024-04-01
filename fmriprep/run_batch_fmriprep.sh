@@ -85,8 +85,8 @@ while IFS=, read -r subject session run_combined; do
 done < "$RESULT_FILE"
 
 # find all DICOM directories that start with "voice"
-subject_numbers=($(find "$FMRIPREP_DATA" -maxdepth 2 -type d -name "sub-*" | cut -d'-' -f2))
-#subject_numbers=(019)
+#subject_numbers=($(find "$FMRIPREP_DATA" -maxdepth 2 -type d -name "sub-*" | cut -d'-' -f2))
+subject_numbers=(010 101 126 018 137 155)
 
 mkdir -p ${LOG_OUTPUT}/slurm/
 
