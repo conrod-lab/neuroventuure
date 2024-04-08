@@ -45,11 +45,13 @@ def parse_log_file(log_file_path, subject_label, session, run, bids_dir):
     response_time_pattern = r"goscreen.RT: (\d+)"
     stimulus_pattern = r"go_stimulus: (.+)"
     accuracy_pattern = r"goscreen.ACC: (\d+)"
-
+    #trigger_offset_pattern = r"Trigger.FinishTime: (\d+)"
+    trigger_offset_pattern_1 = r"Trigger.FinishTime: (\d+)"
+    trigger_offset_pattern_2 = r"Trigger.RTTime: (\d+)"
     # Split the log data into individual log frames
     log_frames = re.findall(r'\*\*\* LogFrame Start \*\*\*(.*?)\*\*\* LogFrame End \*\*\*', log_content, re.DOTALL)
-    
 
+    trigger_offset =  None
     for frame in log_frames:
         # Extract relevant fields
         onset_match = re.search(onset_pattern, frame)
@@ -93,6 +95,20 @@ def parse_log_file(log_file_path, subject_label, session, run, bids_dir):
         response_time_list.append(response_time)
         stim_file_list.append(go_stimulus)
         accuracy_list.append(accuracy)
+    
+        #trigger_offset_match = re.search(trigger_offset_pattern, frame)
+        #if trigger_offset_match:
+        #    trigger_offset = float(trigger_offset_match.group(1)) / 1000.0  # Convert to seconds
+        #    break  # Exit loop once the value is found, assuming it appears only once per log frame
+        trigger_offset_match_1 = re.search(trigger_offset_pattern_1, frame)
+        trigger_offset_match_2 = re.search(trigger_offset_pattern_2, frame)
+        # Check if either pattern matches
+        if trigger_offset_match_1:
+            trigger_offset = float(trigger_offset_match_1.group(1)) / 1000.0  # Convert to seconds
+            break
+        elif trigger_offset_match_2:
+            trigger_offset = float(trigger_offset_match_2.group(1)) / 1000.0 
+            break
 
     # Combine the extracted data into a list of tuples
     event_data = list(zip(onset_list, duration_list, trial_type_list, response_time_list, stim_file_list, accuracy_list))
@@ -103,6 +119,7 @@ def parse_log_file(log_file_path, subject_label, session, run, bids_dir):
     #print(df.head())
 
     df['duration'].fillna(1.0, inplace=True)
+    df['onset'] = df['onset'] - trigger_offset
     # Remove rows with None values
     df = df.dropna()
 

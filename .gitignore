@@ -1,6 +1,7 @@
 
 *.out
 *.err
+*.png
 __pycache__
 .DS_Store
 fmri-task/.DS_Store
