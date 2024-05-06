@@ -135,13 +135,13 @@ def main(args):
         first_level_model,
         contrasts=contrasts,
         title=f"{task}",
-        #height_control="fpr",
-        alpha=0.05,
+        height_control="fpr",
+        alpha=0.001,
         cluster_threshold=0,
         min_distance=8.0,
         plot_type="glass",
     )
-    
+
     # Save report to output directory
     bids_output_path = bidsify_output(outdir,fmri_file,f'report-firstlvl', 'html')
     report.save_as_html(bids_output_path)
@@ -155,14 +155,14 @@ if __name__ == "__main__":
                         help='Confounds strategy as a tuple (default: ("motion", "high_pass", "wm_csf"))')
     parser.add_argument('outdir', type=str, help='Output directory for subject/session')
 
-    #args = parser.parse_args()
-    args = parser.parse_args([
-        '/Users/seanspinney/data/neuroventure-derivatives/fmriprep/sub-019/ses-01/func/sub-019_ses-01_task-stop_run-01_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz',
-        '/Users/seanspinney/data/neuroventure/sub-019/ses-01/func/sub-019_ses-01_task-stop_run-01_events.tsv',
-        'stop',
-        'motion',
-        '/Users/seanspinney/projects/neuroventure/fmri-task/output'
-    ])
+    args = parser.parse_args()
+#    args = parser.parse_args([
+#        '/home/spinney/project/data/neuroventure/derivatives/fmriprep/sub-100/ses-01/func/sub-100_ses-01_task-stop_run-01_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz',
+#        '/home/spinney/project/data/neuroventure/derivatives/fmriprep/sub-100/ses-01/func/sub-100_ses-01_task-stop_run-01_events.tsv',
+#        'stop',
+#        'motion',
+#        '/scratch/spinney/fmri-task/output'
+#    ])
     main(args)
 
    # python estimate_first_level.py /Users/seanspinney/data/neuroventure-derivatives/fmriprep/sub-019/ses-01/func/sub-019_ses-01_task-stop_run-01_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz /Users/seanspinney/data/neuroventure/sub-019/ses-01/func/sub-019_ses-01_task-stop_run-01_events.tsv stop motion /Users/seanspinney/projects/neuroventure/fmri-task/output

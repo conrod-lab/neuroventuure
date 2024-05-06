@@ -29,6 +29,7 @@ def extract_info(file_path, subject, session):
                 content = file.read()
 
                 # Check if the required patterns are present in the content
+                #subject_match = re.findall(r'Subject(?:ID)?:\s+(\d+)', content)
                 subject_match = re.findall(r'Subject(?:ID)?:\s+(\d+)', content)
                 session_match = re.findall(r'Session:\s+(\d+)', content)
 
@@ -38,15 +39,27 @@ def extract_info(file_path, subject, session):
                             'file':file_path,
                             'reason': "missing basic info"}], None
 
+                subject_is_match = False
+                found_subject = None
+                for matched_subject in subject_match:
+                    if int(matched_subject) == int(subject):
+                        subject_is_match = True
+                        found_subject = matched_subject
+                        if (int(session_match[0]) != int(session)):
+                            return [{'subject': (int(found_subject), int(subject)), 
+                                     'session': (int(session_match[0]), int(session)), 
+                                     'file':file_path,
+                                     'reason': "session-mismatch"}], None
 
-                if (int(subject_match[0]) != int(subject)) or (int(session_match[0]) != int(session)):
-                    return [{'subject': (int(subject_match[0]), int(subject)), 
-                            'session': (int(session_match[0]), int(session)), 
-                            'file':file_path,
-                            'reason': "mismatch"}], None
+                if not subject_is_match:
+                    return [{'subject': (subject_match[:], int(subject)),
+                            'session': (int(session_match[0]), int(session)),
+                            'file': file_path,
+                            'reason': "subject-mismatch"}], None
+
 
                 if not content.strip().endswith('*** LogFrame End ***'):
-                    return [{'subject': (int(subject_match[0]), int(subject)), 
+                    return [{'subject': (int(found_subject), int(subject)), 
                             'session': (int(session_match[0]), int(session)), 
                             'file':file_path,
                             'reason': "incomplete run"}], None
@@ -57,7 +70,7 @@ def extract_info(file_path, subject, session):
                     session_time = re.search(r'SessionTime: (\d{2}:\d{2}:\d{2})', content).group(1)
                     
                     return {
-                        "Subject": int(subject_match[0]),
+                        "Subject": int(found_subject),
                         "Session": int(session_match[0]),
                         "Experiment": f"NeuroVen_{task}_fMRI_FRENCH_2JB",
                         "SessionDate": session_date,

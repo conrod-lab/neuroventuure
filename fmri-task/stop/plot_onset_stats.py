@@ -9,6 +9,7 @@ bids_dir = '/home/spinney/project/data/neuroventure/bids'
 
 # Initialize a list to store all data
 all_data = []
+list_of_unaligned = []
 
 # Loop through all subjects and sessions
 for root, dirs, files in os.walk(bids_dir):
@@ -25,6 +26,8 @@ for root, dirs, files in os.walk(bids_dir):
             try:
                 first_onset_time = events_df['onset'].iloc[0]
                 last_onset_time = events_df['onset'].iloc[-1]
+                if float(first_onset_time) > 1.0:
+                     list_of_unaligned.append(f"sub-{subject}/ses-{session}")
                 # Append to all data list as dictionary
                 all_data.append({'subject': subject, 'session': session, 'onset': first_onset_time, 'time': 'first'})
                 all_data.append({'subject': subject, 'session': session, 'onset': last_onset_time, 'time': 'last'})
@@ -49,3 +52,6 @@ plt.savefig('panel_plot.png')
 plt.close()
 
 print("Panel plot saved successfully.")
+
+print("List of subjects with first onset larger than 1s")
+print(list_of_unaligned)
